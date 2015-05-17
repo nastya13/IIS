@@ -1,0 +1,8 @@
+Java;
+Java,
+java,
+Джава,
+джава,
+;Python;
+Python,
+Питон
