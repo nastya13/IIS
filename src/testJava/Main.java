@@ -56,7 +56,7 @@ public class Main {
 		Levenshtein l = new Levenshtein();
 		for (String key : m.keySet()) {
 			val = m.get(key);
-			for (int i = 0; i < val.length-1; i++)
+			for (int i = 0; i < val.length; i++)
 				if (l.similarity(word, val[i])>0.7)
 					return key;
 		}
@@ -124,7 +124,7 @@ public class Main {
 	}
 	public static void main(String[] args) throws FileNotFoundException {
 		// get ask on words
-		String ask = " то знает Java и смотрел BlaBla";
+		String ask = " то знает Java и не смотрел BlaBla";
 		String[] askWords = ask.split(" ");
 		String questWord = askWords[0];
 		List<String> condition = new ArrayList<String>();
@@ -134,6 +134,9 @@ public class Main {
 		String film = null;
 		String sport = null;
 		String os = null;
+		int num = -1;
+		for (int i=0;i<askWords.length;i++)
+			if (askWords[i].equals("не")) num = i;
 		
 
 		// get content of file with name of Man
@@ -166,6 +169,7 @@ public class Main {
 		
 		for (int i = 1; i < askWords.length; i++) {
 			String alias = checkValue(askWords[i], mapAlias);
+			if (i == num) condition.add("not");
 			if (alias != null) 
 			{
 				if (alias.equals("ItisLabs")&& lab != null) 
@@ -178,18 +182,22 @@ public class Main {
 					{
 						condition.add("programmingLang " + lang);
 					}
+				else if (alias.equals("Film") && lang!=null)
+				{
+					condition.add("interests Film " + film);
+					if (askWords.equals(film)) i++;
+				}
 					else if (alias.equals("knows"))
 					{
-						if (getKey(askWords[i+1],dictionaryMans,0.7)!=null)
+						if (lang!=null)
 						{
-							condition.add(alias +" " + askWords[i+1]);
+							condition.add(alias +" " + lang);
 							i++;
-						}else if (getKey(askWords[i+2],dictionaryMans,0.7)!=null)
+						}else if ((i+2)<askWords.length-1 && getKey(askWords[i+2],dictionaryMans,0.7)!=null)
 						{
 							condition.add(alias +" " + askWords[i+2]);
 							i+=2;
 						}
-						i++;
 					}
 			} else if (alias != null && !alias.equals("ItisLabs")) {
 				condition.add(alias);
@@ -200,6 +208,7 @@ public class Main {
 					condition.add("ItisLabs " + findInMap(mapLabs,askWords[i]));
 				if (getKey(askWords[i], dictionaryLangs, 0.75) != null)
 					condition.add("ProgrammingLang " + findInMap(mapLang,askWords[i]));
+				if (askWords[i].equals("и")) condition.add("and");
 			}
 		}
 		System.out.print(questWord + " ");
